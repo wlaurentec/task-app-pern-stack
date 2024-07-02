@@ -1,14 +1,14 @@
 const pool = require("../db");
-const getAllTasks = async (req, res) => {
+const getAllTasks = async (req, res, next) => {
   try {
     const allTasks = await pool.query("SELECT * FROM task");
     res.json(allTasks.rows);
   } catch (err) {
-    res.json({ error: err.message });
+    next(err);
   }
 };
 
-const getTask = async (req, res) => {
+const getTask = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -19,11 +19,11 @@ const getTask = async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    res.json({ error: err.message });
+    next(err);
   }
 };
 
-const createTask = async (req, res) => {
+const createTask = async (req, res, next) => {
   try {
     const { title, description } = req.body;
     const newTask = await pool.query(
@@ -32,22 +32,27 @@ const createTask = async (req, res) => {
     );
     res.json(newTask.rows[0]);
   } catch (err) {
-    res.json({ error: err.message });
+    next(err);
   }
 };
 
 const deleteTask = async (req, res) => {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
   const result = await pool.query("DELETE FROM task WHERE id = $1 ", [id]);
   if (result.rowCount === 0) {
     return res.status(404).json({ message: "Task not found" });
   }
 
   return res.sendStatus(204);
+  } catch (err) {
+    next(err);
+  }
 };
 
 const updateTask = async (req, res) => {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
   const { title, description } = req.body;
 
   const result = await pool.query(
@@ -58,6 +63,9 @@ const updateTask = async (req, res) => {
     return res.status(404).json({ message: "Task not found" });
   }
   return res.json(result.rows[0]);
+  } catch (err) {
+    next(err);
+  }
 };
 module.exports = {
   getAllTasks,
