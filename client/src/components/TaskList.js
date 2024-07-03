@@ -9,6 +9,17 @@ function TaskList() {
     setTasks(data);
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`http://localhost:4000/tasks/${id}`, {
+        method: "DELETE",
+      });
+      setTasks(tasks.filter((task) => task.id !== id));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   useEffect(() => {
     loadTasks();
   }, []);
@@ -42,7 +53,7 @@ function TaskList() {
               <Button
                 variant="contained"
                 color="warning"
-                onClick={() => console.log("Delete")}
+                onClick={() => handleDelete(task.id)}
                 style={{ marginLeft: ".5rem" }}
               >
                 Delete
