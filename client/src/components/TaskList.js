@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button, Card, CardContent, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 function TaskList() {
   const [tasks, setTasks] = useState([]);
+  const navigate = useNavigate();
   const loadTasks = async () => {
     const res = await fetch("http://localhost:4000/tasks");
     const data = await res.json();
@@ -18,7 +20,7 @@ function TaskList() {
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   useEffect(() => {
     loadTasks();
@@ -38,7 +40,7 @@ function TaskList() {
           <CardContent
             style={{ display: "flex", justifyContent: "space-between" }}
           >
-            <div style={{ color: "#eee" }}> 
+            <div style={{ color: "#eee" }}>
               <Typography>{task.title}</Typography>
               <Typography>{task.description}</Typography>
             </div>
@@ -46,7 +48,7 @@ function TaskList() {
               <Button
                 variant="contained"
                 color="inherit"
-                onClick={() => console.log("Edit")}
+                onClick={() => navigate(`/tasks/${task.id}/edit`)}
               >
                 Edit
               </Button>

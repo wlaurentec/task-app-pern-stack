@@ -10,11 +10,11 @@ function App() {
       <BrowserRouter>
         <NavBar />
         <Container>
-        <Routes>
-          <Route path="/" element={<TaskList />} />
-          <Route path="/tasks/new" element={<TaskForm />} />
-          {/* Edit route */}
-        </Routes>
+          <Routes>
+            <Route path="/" element={<TaskList />} />
+            <Route path="/tasks/new" element={<TaskForm />} />
+            <Route path="/tasks/:id/edit" element={<TaskForm />} />
+          </Routes>
         </Container>
       </BrowserRouter>
     </div>
