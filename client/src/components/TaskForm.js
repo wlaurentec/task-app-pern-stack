@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 function TaskForm() {
   const [task, setTask] = useState({
     title: "",
@@ -16,20 +16,31 @@ function TaskForm() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [editing, setEditing] = useState(false);
+
   const navigate = useNavigate();
+  const params = useParams();
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
-    const res = await fetch("http://localhost:4000/tasks", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(task),
-    });
 
-    const data = await res.json();
-    console.log(data);
+    if (editing) {
+      await fetch(`http://localhost:4000/tasks/${params.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(task),
+      });
+    } else {
+      await fetch(`http://localhost:4000/tasks`, {
+        method: "POST",
+        body: JSON.stringify(task),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    }
 
     setLoading(false);
     navigate("/");
@@ -39,6 +50,20 @@ function TaskForm() {
   const handleChange = (event) => {
     setTask({ ...task, [event.target.name]: event.target.value });
   };
+
+  const loadTask = async (id) => {
+    const res = await fetch(`http://localhost:4000/tasks/${id}`);
+    const data = await res.json();
+    setTask({ title: data.title, description: data.description });
+    setEditing(true);
+  };
+
+  useEffect(() => {
+    if (params.id) {
+      loadTask(params.id);
+    }
+  }, [params.id]);
+
   return (
     <Grid
       container
@@ -52,7 +77,7 @@ function TaskForm() {
           style={{ backgroundColor: "#1e2727", padding: "1rem" }}
         >
           <Typography variant="5" textAlign="center" color="white">
-            Create Task
+            {editing ? "Edit Task" : "Create Task"}
           </Typography>
           <CardContent>
             <form onSubmit={handleSubmit}>
@@ -61,6 +86,7 @@ function TaskForm() {
                 label="Write your title"
                 sx={{ display: "block", margin: "0.5rem 0" }}
                 name="title"
+                value={task.title}
                 onChange={handleChange}
                 inputProps={{ style: { color: "white" } }}
                 InputLabelProps={{ style: { color: "white" } }}
@@ -71,13 +97,23 @@ function TaskForm() {
                 multiline
                 rows={4}
                 name="description"
+                value={task.description}
                 onChange={handleChange}
                 sx={{ display: "block", margin: "0.5rem 0" }}
                 inputProps={{ style: { color: "white" } }}
                 InputLabelProps={{ style: { color: "white" } }}
               />
-              <Button variant="contained" color="primary" type="submit" disabled={!task.title || !task.description}>
-                {loading ? <CircularProgress color="inherit" size={24} /> : "Create"}
+              <Button
+                variant="contained"
+                color="primary"
+                type="submit"
+                disabled={!task.title || !task.description}
+              >
+                {loading ? (
+                  <CircularProgress color="inherit" size={24} />
+                ) : (
+                  "Save"
+                )}
               </Button>
             </form>
           </CardContent>
